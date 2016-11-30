@@ -1,0 +1,1573 @@
+From 29817672397471cd0eb37bfb54bb41cef09c313f Mon Sep 17 00:00:00 2001
+From: Mat Booth <mat.booth@redhat.com>
+Date: Fri, 27 Jun 2014 13:01:18 +0100
+Subject: [PATCH 3/3] [438418] Migrate to tycho build
+
+Change-Id: I1de9bb8553428f5da6e58670a070c2788747f470
+Signed-off-by: Mat Booth <mat.booth@redhat.com>
+---
+ .gitignore                                         |   3 +-
+ .project                                           |  11 ++
+ doc/org.eclipse.xsd.cheatsheets/pom.xml            |  31 ++++
+ doc/org.eclipse.xsd.doc-feature/pom.xml            |  31 ++++
+ doc/org.eclipse.xsd.doc/.gitignore                 |   2 +
+ doc/org.eclipse.xsd.doc/buckminster.cspex          |  27 ---
+ doc/org.eclipse.xsd.doc/build.properties           |   1 +
+ doc/org.eclipse.xsd.doc/documentation.ant          |   5 +-
+ .../org.eclipse.xsd.doc_OLD_build.xml              | 123 --------------
+ doc/org.eclipse.xsd.doc/pom.xml                    |  83 ++++++++++
+ examples/org.eclipse.xsd.example/pom.xml           |  31 ++++
+ features/org.eclipse.xsd-feature/pom.xml           |  30 ++++
+ .../pom.xml                                        |  31 ++++
+ features/org.eclipse.xsd.edit-feature/pom.xml      |  31 ++++
+ features/org.eclipse.xsd.editor-feature/pom.xml    |  31 ++++
+ .../org.eclipse.xsd.example-feature/feature.xml    |   4 -
+ features/org.eclipse.xsd.example-feature/pom.xml   |  31 ++++
+ features/org.eclipse.xsd.mapping-feature/pom.xml   |  31 ++++
+ .../org.eclipse.xsd.mapping.editor-feature/pom.xml |  31 ++++
+ features/org.eclipse.xsd.sdk-feature/feature.xml   |  28 ----
+ features/org.eclipse.xsd.sdk-feature/pom.xml       |  30 ++++
+ .../pom.xml                                        |  31 ++++
+ plugins/org.eclipse.emf.mapping.xsd2ecore/pom.xml  |  31 ++++
+ plugins/org.eclipse.xsd.ecore.converter/pom.xml    |  31 ++++
+ plugins/org.eclipse.xsd.ecore.exporter/pom.xml     |  31 ++++
+ plugins/org.eclipse.xsd.ecore.importer/pom.xml     |  31 ++++
+ plugins/org.eclipse.xsd.edit/pom.xml               |  31 ++++
+ plugins/org.eclipse.xsd.editor/pom.xml             |  31 ++++
+ plugins/org.eclipse.xsd.example.installer/pom.xml  |  31 ++++
+ plugins/org.eclipse.xsd.mapping.editor/pom.xml     |  31 ++++
+ plugins/org.eclipse.xsd.mapping/pom.xml            |  31 ++++
+ plugins/org.eclipse.xsd/pom.xml                    |  30 ++++
+ pom.xml                                            | 182 +++++++++++++++++++++
+ releng/org.eclipse.xsd.repository/.project         |  11 ++
+ releng/org.eclipse.xsd.repository/category.xml     |  43 +++++
+ releng/org.eclipse.xsd.repository/pom.xml          |  40 +++++
+ 36 files changed, 1056 insertions(+), 186 deletions(-)
+ create mode 100644 .project
+ create mode 100644 doc/org.eclipse.xsd.cheatsheets/pom.xml
+ create mode 100644 doc/org.eclipse.xsd.doc-feature/pom.xml
+ create mode 100644 doc/org.eclipse.xsd.doc/.gitignore
+ delete mode 100644 doc/org.eclipse.xsd.doc/buckminster.cspex
+ delete mode 100755 doc/org.eclipse.xsd.doc/org.eclipse.xsd.doc_OLD_build.xml
+ create mode 100644 doc/org.eclipse.xsd.doc/pom.xml
+ create mode 100644 examples/org.eclipse.xsd.example/pom.xml
+ create mode 100644 features/org.eclipse.xsd-feature/pom.xml
+ create mode 100644 features/org.eclipse.xsd.ecore.converter-feature/pom.xml
+ create mode 100644 features/org.eclipse.xsd.edit-feature/pom.xml
+ create mode 100644 features/org.eclipse.xsd.editor-feature/pom.xml
+ create mode 100644 features/org.eclipse.xsd.example-feature/pom.xml
+ create mode 100644 features/org.eclipse.xsd.mapping-feature/pom.xml
+ create mode 100644 features/org.eclipse.xsd.mapping.editor-feature/pom.xml
+ create mode 100644 features/org.eclipse.xsd.sdk-feature/pom.xml
+ create mode 100644 plugins/org.eclipse.emf.mapping.xsd2ecore.editor/pom.xml
+ create mode 100644 plugins/org.eclipse.emf.mapping.xsd2ecore/pom.xml
+ create mode 100644 plugins/org.eclipse.xsd.ecore.converter/pom.xml
+ create mode 100644 plugins/org.eclipse.xsd.ecore.exporter/pom.xml
+ create mode 100644 plugins/org.eclipse.xsd.ecore.importer/pom.xml
+ create mode 100644 plugins/org.eclipse.xsd.edit/pom.xml
+ create mode 100644 plugins/org.eclipse.xsd.editor/pom.xml
+ create mode 100644 plugins/org.eclipse.xsd.example.installer/pom.xml
+ create mode 100644 plugins/org.eclipse.xsd.mapping.editor/pom.xml
+ create mode 100644 plugins/org.eclipse.xsd.mapping/pom.xml
+ create mode 100644 plugins/org.eclipse.xsd/pom.xml
+ create mode 100644 pom.xml
+ create mode 100644 releng/org.eclipse.xsd.repository/.project
+ create mode 100644 releng/org.eclipse.xsd.repository/category.xml
+ create mode 100644 releng/org.eclipse.xsd.repository/pom.xml
+
+diff --git a/.gitignore b/.gitignore
+index 3a4edf6..61ebcb9 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1 +1,2 @@
+-.project
++target/
++.m2/
+diff --git a/.project b/.project
+new file mode 100644
+index 0000000..00ac1ef
+--- /dev/null
++++ b/.project
+@@ -0,0 +1,11 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<projectDescription>
++	<name>org.eclipse.xsd-parent</name>
++	<comment></comment>
++	<projects>
++	</projects>
++	<buildSpec>
++	</buildSpec>
++	<natures>
++	</natures>
++</projectDescription>
+diff --git a/doc/org.eclipse.xsd.cheatsheets/pom.xml b/doc/org.eclipse.xsd.cheatsheets/pom.xml
+new file mode 100644
+index 0000000..5dbab6e
+--- /dev/null
++++ b/doc/org.eclipse.xsd.cheatsheets/pom.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd</groupId>
++  <artifactId>org.eclipse.xsd.cheatsheets</artifactId>
++  <version>2.6.0-SNAPSHOT</version>
++  <packaging>eclipse-plugin</packaging>
++
++  <name>XSD Cheat Sheets</name>
++</project>
+diff --git a/doc/org.eclipse.xsd.doc-feature/pom.xml b/doc/org.eclipse.xsd.doc-feature/pom.xml
+new file mode 100644
+index 0000000..57aa9e2
+--- /dev/null
++++ b/doc/org.eclipse.xsd.doc-feature/pom.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd.features</groupId>
++  <artifactId>org.eclipse.xsd.doc</artifactId>
++  <version>2.9.0-SNAPSHOT</version>
++  <packaging>eclipse-feature</packaging>
++
++  <name>XSD Documentation Feature</name>
++</project>
+diff --git a/doc/org.eclipse.xsd.doc/.gitignore b/doc/org.eclipse.xsd.doc/.gitignore
+new file mode 100644
+index 0000000..114c567
+--- /dev/null
++++ b/doc/org.eclipse.xsd.doc/.gitignore
+@@ -0,0 +1,2 @@
++/index/
++/workspace/
+diff --git a/doc/org.eclipse.xsd.doc/buckminster.cspex b/doc/org.eclipse.xsd.doc/buckminster.cspex
+deleted file mode 100644
+index 1ba847b..0000000
+--- a/doc/org.eclipse.xsd.doc/buckminster.cspex
++++ /dev/null
+@@ -1,27 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<cs:cspecExtension xmlns:com="http://www.eclipse.org/buckminster/Common-1.0" xmlns:cs="http://www.eclipse.org/buckminster/CSpec-1.0">
+-	<cs:artifacts>
+-		<cs:private name="plugin.xml" path="plugin.xml" />
+-	</cs:artifacts>
+-
+-	<cs:actions>
+-		<cs:private name="documentation.index" actor="ant">
+-			<cs:actorProperties>
+-				<cs:property key="buildFile" value="documentation.ant" />
+-				<cs:property key="targets" value="build.index" />
+-			</cs:actorProperties>
+-			<cs:prerequisites>
+-				<cs:attribute name="plugin.xml" alias="plugin.xml" />
+-			</cs:prerequisites>
+-			<cs:products alias="output" base="${buckminster.home}">
+-				<cs:path path="index/" />
+-			</cs:products>
+-		</cs:private>
+-	</cs:actions>
+-
+-	<cs:alterGroups>
+-		<cs:private name="jar.contents">
+-			<cs:attribute name="documentation.index" />
+-		</cs:private>
+-	</cs:alterGroups>
+-</cs:cspecExtension>
+diff --git a/doc/org.eclipse.xsd.doc/build.properties b/doc/org.eclipse.xsd.doc/build.properties
+index 00ad1e5..6f62c2e 100644
+--- a/doc/org.eclipse.xsd.doc/build.properties
++++ b/doc/org.eclipse.xsd.doc/build.properties
+@@ -16,6 +16,7 @@ bin.includes = about.html,\
+                css/,\
+                cvsdoc/,\
+                images/,\
++               index/,\
+                META-INF/,\
+                news/,\
+                references/,\
+diff --git a/doc/org.eclipse.xsd.doc/documentation.ant b/doc/org.eclipse.xsd.doc/documentation.ant
+index 04aa7a7..2e38e99 100644
+--- a/doc/org.eclipse.xsd.doc/documentation.ant
++++ b/doc/org.eclipse.xsd.doc/documentation.ant
+@@ -1,6 +1,5 @@
+-<project name="Documentation Build Tasks">
++<project name="Documentation Build Tasks" basedir=".">
+ 	<target name="build.index" description="Build documentation search index">
+-		<dirname property="destination" file="${sp:output}" />
+-		<help.buildHelpIndex manifest="${sp:plugin.xml}" destination="${destination}" />
++		<help.buildHelpIndex manifest="plugin.xml" destination="." />
+ 	</target>
+ </project>
+diff --git a/doc/org.eclipse.xsd.doc/org.eclipse.xsd.doc_OLD_build.xml b/doc/org.eclipse.xsd.doc/org.eclipse.xsd.doc_OLD_build.xml
+deleted file mode 100755
+index f9a266d..0000000
+--- a/doc/org.eclipse.xsd.doc/org.eclipse.xsd.doc_OLD_build.xml
++++ /dev/null
+@@ -1,123 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project name="org.eclipse.xsd.doc" default="build.jars" basedir=".">
+-	
+-	<!-- Plug-in information.  This is a HACK.  Do not forget to update version numbers, etc.. -->
+-	<property name="pluginVersion" value="2.4.0"/>
+-	<property name="docPlugin" value="org.eclipse.xsd.doc"/>
+-	
+-	<property name="filesToInclude" value="META-INF/**,about.*,modeling*.png,plugin.*,doc.zip,toc*.xml,topics_*.xml,index/**,images/**,tutorials/**,references/**,css/**"/>
+-
+-	<!-- Compiler settings. -->
+-	<property name="javacFailOnError" value="false"/>
+-	<property name="javacDebugInfo" value="on"/>
+-	<property name="javacVerbose" value="true"/>
+-	<property name="javacSource" value="1.4"/>
+-	<property name="javacTarget" value="1.4"/>
+-	<property name="compilerArg" value=""/>
+-	<path id="path_bootclasspath">
+-		<fileset dir="${java.home}/lib">
+-			<include name="*.jar"/>
+-		</fileset>
+-	</path>
+-	<property name="bootclasspath" refid="path_bootclasspath"/>
+-	<property name="bundleJavacSource" value="${javacSource}"/>
+-	<property name="bundleJavacTarget" value="${javacTarget}"/>
+-	<property name="bundleBootClasspath" value="${bootclasspath}"/>
+-	<property name="basews" value="${ws}"/>
+-	<property name="baseos" value="${os}"/>
+-	<property name="basearch" value="${arch}"/>
+-	<property name="basenl" value="${nl}"/>
+-
+-	<target name="init" depends="properties">
+-		<condition property="pluginTemp" value="${buildTempFolder}/plugins">
+-			<isset property="buildTempFolder"/>
+-		</condition>
+-		<property name="pluginTemp" value="${basedir}"/>
+-		<condition property="build.result.folder" value="${pluginTemp}/${docPlugin}">
+-			<isset property="buildTempFolder"/>
+-		</condition>
+-		<property name="build.result.folder" value="${basedir}"/>
+-		<property name="temp.folder" value="${basedir}/temp.folder"/>
+-		<property name="plugin.destination" value="${basedir}"/>
+-	</target>
+-
+-	<target name="properties" if="eclipse.running">
+-		<property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+-	</target>
+-
+-	<target name="build.update.jar" depends="init" description="Build the plug-in: ${docPlugin} for an update site.">
+-		<delete dir="${temp.folder}"/>
+-		<mkdir dir="${temp.folder}"/>
+-		<antcall target="build.jars"/>
+-		<antcall target="gather.bin.parts">
+-			<param name="destination.temp.folder" value="${temp.folder}/"/>
+-		</antcall>
+-		<zip destfile="${plugin.destination}/${docPlugin}_${pluginVersion}.${forceContextQualifier}.jar" basedir="${temp.folder}/${docPlugin}_${pluginVersion}.${forceContextQualifier}" filesonly="false" whenempty="skip" update="false"/>
+-		<delete dir="${temp.folder}"/>
+-	</target>
+-
+-	<target name="build.jars" depends="init" description="Build all the jars for the plug-in: ${docPlugin}.">
+-	 	<macrodef name="echo-timestamp"><sequential><antcall target="-timestamp" inheritAll="false" /></sequential></macrodef>
+-		<echo-timestamp />
+-		<property name="eclipseDir" location="../.."/>
+-		<chmod perm="754" file="build/antJavadoc.sh"/>
+-	        <exec executable="bash" dir="build"><arg line="./antJavadoc.sh ${eclipseDir}"/></exec>
+-		<echo-timestamp />
+-		<antcall target="build.index"/>
+-		<echo-timestamp />
+-	</target>
+-
+-	<target name="build.index" depends="init" description="Builds search index for the plug-in" if="eclipse.running">
+-		<help.buildHelpIndex manifest="plugin.xml" destination="."/>
+-	</target>
+-
+-	<target name="build.sources" depends="init">
+-	</target>
+-
+-	<target name="gather.bin.parts" depends="init" if="destination.temp.folder">
+-		<mkdir dir="${destination.temp.folder}/${docPlugin}_${pluginVersion}.${forceContextQualifier}"/>
+-		<copy todir="${destination.temp.folder}/${docPlugin}_${pluginVersion}.${forceContextQualifier}" failonerror="true" overwrite="false">
+-			<fileset dir="${basedir}" includes="${filesToInclude}"/>
+-		</copy>
+-		<eclipse.versionReplacer 
+-			path="${destination.temp.folder}/${docPlugin}_${pluginVersion}.${forceContextQualifier}" 
+-			version="${pluginVersion}.${forceContextQualifier}"/>
+-	</target>
+-
+-	<target name="build.zips" depends="init">
+-	</target>
+-
+-	<target name="gather.sources" depends="init" if="destination.temp.folder">
+-	</target>
+-
+-	<target name="gather.logs" depends="init" if="destination.temp.folder">
+-	</target>
+-
+-	<target name="clean" depends="init" description="Clean the plug-in: ${docPlugin} of all the zips, jars and logs created.">
+-		<delete file="${plugin.destination}/${docPlugin}_${pluginVersion}.${forceContextQualifier}.jar"/>
+-		<delete file="${plugin.destination}/${docPlugin}_${pluginVersion}.${forceContextQualifier}.zip"/>
+-		<delete dir="${temp.folder}"/>
+-	</target>
+-
+-	<target name="zip.plugin" depends="init" description="Create a zip containing all the elements for the plug-in: ${docPlugin}.">
+-		<delete dir="${temp.folder}"/>
+-		<mkdir dir="${temp.folder}"/>
+-		<antcall target="build.jars"/>
+-		<antcall target="build.sources"/>
+-		<antcall target="gather.bin.parts">
+-			<param name="destination.temp.folder" value="${temp.folder}/"/>
+-		</antcall>
+-		<antcall target="gather.sources">
+-			<param name="destination.temp.folder" value="${temp.folder}/"/>
+-		</antcall>
+-		<delete>
+-			<fileset dir="${temp.folder}" includes="**/*.bin.log"			/>
+-		</delete>
+-		<zip destfile="${plugin.destination}/${docPlugin}_${pluginVersion}.${forceContextQualifier}.zip" basedir="${temp.folder}" filesonly="true" whenempty="skip" update="false"/>
+-		<delete dir="${temp.folder}"/>
+-	</target>
+-
+-	<!-- echo timestamp into log: format can be "MM/dd/yyyy hh:mm:ss aa" or "hh:mm:ss" -->
+-	<target name="-timestamp"><tstamp><format property="-timestamp" pattern="hh:mm:ss"/></tstamp><echo>${-timestamp}</echo></target>
+-
+-</project>
+diff --git a/doc/org.eclipse.xsd.doc/pom.xml b/doc/org.eclipse.xsd.doc/pom.xml
+new file mode 100644
+index 0000000..b4c4628
+--- /dev/null
++++ b/doc/org.eclipse.xsd.doc/pom.xml
+@@ -0,0 +1,79 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd</groupId>
++  <artifactId>org.eclipse.xsd.doc</artifactId>
++  <version>2.7.0-SNAPSHOT</version>
++  <packaging>eclipse-plugin</packaging>
++
++  <name>XSD Documentation</name>
++
++  <build>
++    <plugins>
++      <plugin>
++        <groupId>org.eclipse.tycho.extras</groupId>
++        <artifactId>tycho-eclipserun-plugin</artifactId>
++        <version>${tycho-extras-version}</version>
++        <executions>
++          <execution>
++            <id>documentation-index-generation</id>
++            <phase>compile</phase>
++            <configuration>
++              <argLine>-Dhelp.lucene.tokenizer=standard</argLine>
++              <appArgLine>-consolelog -debug -application org.eclipse.ant.core.antRunner -buildfile documentation.ant build.index</appArgLine>
++              <dependencies>
++                <dependency>
++                  <artifactId>org.eclipse.osgi.compatibility.state</artifactId>
++                  <type>eclipse-plugin</type>
++                </dependency>
++                <dependency>
++                  <artifactId>org.eclipse.ant.core</artifactId>
++                  <type>eclipse-plugin</type>
++                </dependency>
++                <dependency>
++                  <artifactId>org.apache.ant</artifactId>
++                  <type>eclipse-plugin</type>
++                </dependency>
++                <dependency>
++                  <artifactId>org.eclipse.help.base</artifactId>
++                  <type>eclipse-plugin</type>
++                </dependency>
++              </dependencies>
++              <repositories>
++                <repository>
++                  <id>eclipse-platform</id>
++                  <url>http://download.eclipse.org/releases/${eclipse-platform-name}</url>
++                  <layout>p2</layout>
++                </repository>
++              </repositories>
++            </configuration>
++            <goals>
++              <goal>eclipse-run</goal>
++            </goals>
++          </execution>
++        </executions>
++      </plugin>
++    </plugins>
++  </build>
++</project>
+diff --git a/examples/org.eclipse.xsd.example/pom.xml b/examples/org.eclipse.xsd.example/pom.xml
+new file mode 100644
+index 0000000..6b34929
+--- /dev/null
++++ b/examples/org.eclipse.xsd.example/pom.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd</groupId>
++  <artifactId>org.eclipse.xsd.example</artifactId>
++  <version>2.6.0-SNAPSHOT</version>
++  <packaging>eclipse-plugin</packaging>
++
++  <name>XSD Example</name>
++</project>
+diff --git a/features/org.eclipse.xsd-feature/pom.xml b/features/org.eclipse.xsd-feature/pom.xml
+new file mode 100644
+index 0000000..3303b6c
+--- /dev/null
++++ b/features/org.eclipse.xsd-feature/pom.xml
+@@ -0,0 +1,30 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd.features</groupId>
++  <artifactId>org.eclipse.xsd</artifactId>
++  <packaging>eclipse-feature</packaging>
++
++  <name>XSD - XML Schema Definition Model Feature</name>
++</project>
+diff --git a/features/org.eclipse.xsd.ecore.converter-feature/pom.xml b/features/org.eclipse.xsd.ecore.converter-feature/pom.xml
+new file mode 100644
+index 0000000..d87c3dd
+--- /dev/null
++++ b/features/org.eclipse.xsd.ecore.converter-feature/pom.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd.features</groupId>
++  <artifactId>org.eclipse.xsd.ecore.converter</artifactId>
++  <version>2.9.0-SNAPSHOT</version>
++  <packaging>eclipse-feature</packaging>
++
++  <name>XSD Ecore Converter Feature</name>
++</project>
+diff --git a/features/org.eclipse.xsd.edit-feature/pom.xml b/features/org.eclipse.xsd.edit-feature/pom.xml
+new file mode 100644
+index 0000000..5af054e
+--- /dev/null
++++ b/features/org.eclipse.xsd.edit-feature/pom.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd.features</groupId>
++  <artifactId>org.eclipse.xsd.edit</artifactId>
++  <version>2.9.0-SNAPSHOT</version>
++  <packaging>eclipse-feature</packaging>
++
++  <name>XSD Edit Feature</name>
++</project>
+diff --git a/features/org.eclipse.xsd.editor-feature/pom.xml b/features/org.eclipse.xsd.editor-feature/pom.xml
+new file mode 100644
+index 0000000..fc5fb41
+--- /dev/null
++++ b/features/org.eclipse.xsd.editor-feature/pom.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd.features</groupId>
++  <artifactId>org.eclipse.xsd.editor</artifactId>
++  <version>2.9.0-SNAPSHOT</version>
++  <packaging>eclipse-feature</packaging>
++
++  <name>XSD Sample Editor Feature</name>
++</project>
+diff --git a/features/org.eclipse.xsd.example-feature/feature.xml b/features/org.eclipse.xsd.example-feature/feature.xml
+index 348c5b1..df4394e 100644
+--- a/features/org.eclipse.xsd.example-feature/feature.xml
++++ b/features/org.eclipse.xsd.example-feature/feature.xml
+@@ -28,10 +28,6 @@ http://www.eclipse.org/legal/epl-v10.html
+       <discovery label="%ModelingUpdateSiteName" url="http://www.eclipse.org/modeling/updates/"/>
+    </url>
+ 
+-   <includes
+-         id="org.eclipse.xsd.example.source"
+-         version="0.0.0"/>
+-
+    <requires>
+       <import plugin="org.eclipse.core.runtime"/>
+       <import plugin="org.eclipse.xsd"/>
+diff --git a/features/org.eclipse.xsd.example-feature/pom.xml b/features/org.eclipse.xsd.example-feature/pom.xml
+new file mode 100644
+index 0000000..701e51b
+--- /dev/null
++++ b/features/org.eclipse.xsd.example-feature/pom.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd.features</groupId>
++  <artifactId>org.eclipse.xsd.example</artifactId>
++  <version>2.8.0-SNAPSHOT</version>
++  <packaging>eclipse-feature</packaging>
++
++  <name>XSD Example Feature</name>
++</project>
+diff --git a/features/org.eclipse.xsd.mapping-feature/pom.xml b/features/org.eclipse.xsd.mapping-feature/pom.xml
+new file mode 100644
+index 0000000..5854c7b
+--- /dev/null
++++ b/features/org.eclipse.xsd.mapping-feature/pom.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd.features</groupId>
++  <artifactId>org.eclipse.xsd.mapping</artifactId>
++  <version>2.9.0-SNAPSHOT</version>
++  <packaging>eclipse-feature</packaging>
++
++  <name>XSD Mapping Feature</name>
++</project>
+diff --git a/features/org.eclipse.xsd.mapping.editor-feature/pom.xml b/features/org.eclipse.xsd.mapping.editor-feature/pom.xml
+new file mode 100644
+index 0000000..84c21e2
+--- /dev/null
++++ b/features/org.eclipse.xsd.mapping.editor-feature/pom.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd.features</groupId>
++  <artifactId>org.eclipse.xsd.mapping.editor</artifactId>
++  <version>2.9.0-SNAPSHOT</version>
++  <packaging>eclipse-feature</packaging>
++
++  <name>XSD Mapping Editor Feature</name>
++</project>
+diff --git a/features/org.eclipse.xsd.sdk-feature/feature.xml b/features/org.eclipse.xsd.sdk-feature/feature.xml
+index fb21d8e..ee8a5ee 100644
+--- a/features/org.eclipse.xsd.sdk-feature/feature.xml
++++ b/features/org.eclipse.xsd.sdk-feature/feature.xml
+@@ -33,57 +33,29 @@ http://www.eclipse.org/legal/epl-v10.html
+          version="0.0.0"/>
+ 
+    <includes
+-         id="org.eclipse.xsd.source"
+-         version="0.0.0"/>
+-
+-   <includes
+          id="org.eclipse.xsd.ecore.converter"
+          version="0.0.0"/>
+ 
+    <includes
+-         id="org.eclipse.xsd.ecore.converter.source"
+-         version="0.0.0"/>
+-
+-   <includes
+          id="org.eclipse.xsd.edit"
+          version="0.0.0"/>
+ 
+    <includes
+-         id="org.eclipse.xsd.edit.source"
+-         version="0.0.0"/>
+-
+-   <includes
+          id="org.eclipse.xsd.editor"
+          version="0.0.0"/>
+ 
+    <includes
+-         id="org.eclipse.xsd.editor.source"
+-         version="0.0.0"/>
+-
+-   <includes
+          id="org.eclipse.xsd.mapping"
+          version="0.0.0"/>
+ 
+    <includes
+-         id="org.eclipse.xsd.mapping.source"
+-         version="0.0.0"/>
+-
+-   <includes
+          id="org.eclipse.xsd.mapping.editor"
+          version="0.0.0"/>
+ 
+    <includes
+-         id="org.eclipse.xsd.mapping.editor.source"
+-         version="0.0.0"/>
+-
+-   <includes
+          id="org.eclipse.xsd.doc"
+          version="0.0.0"/>
+ 
+-   <includes
+-         id="org.eclipse.xsd.doc.source"
+-         version="0.0.0"/>
+-
+    <plugin
+          id="org.eclipse.xsd.example.installer"
+          download-size="0"
+diff --git a/features/org.eclipse.xsd.sdk-feature/pom.xml b/features/org.eclipse.xsd.sdk-feature/pom.xml
+new file mode 100644
+index 0000000..b14f390
+--- /dev/null
++++ b/features/org.eclipse.xsd.sdk-feature/pom.xml
+@@ -0,0 +1,30 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd.features</groupId>
++  <artifactId>org.eclipse.xsd.sdk</artifactId>
++  <packaging>eclipse-feature</packaging>
++
++  <name>XSD - XML Schema Definition SDK Feature</name>
++</project>
+diff --git a/plugins/org.eclipse.emf.mapping.xsd2ecore.editor/pom.xml b/plugins/org.eclipse.emf.mapping.xsd2ecore.editor/pom.xml
+new file mode 100644
+index 0000000..b0bda38
+--- /dev/null
++++ b/plugins/org.eclipse.emf.mapping.xsd2ecore.editor/pom.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd</groupId>
++  <artifactId>org.eclipse.emf.mapping.xsd2ecore.editor</artifactId>
++  <version>2.6.0-SNAPSHOT</version>
++  <packaging>eclipse-plugin</packaging>
++
++  <name>XSD to Ecore Mapping Editor</name>
++</project>
+diff --git a/plugins/org.eclipse.emf.mapping.xsd2ecore/pom.xml b/plugins/org.eclipse.emf.mapping.xsd2ecore/pom.xml
+new file mode 100644
+index 0000000..d42875b
+--- /dev/null
++++ b/plugins/org.eclipse.emf.mapping.xsd2ecore/pom.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd</groupId>
++  <artifactId>org.eclipse.emf.mapping.xsd2ecore</artifactId>
++  <version>2.6.0-SNAPSHOT</version>
++  <packaging>eclipse-plugin</packaging>
++
++  <name>XSD to Ecore Mapping</name>
++</project>
+diff --git a/plugins/org.eclipse.xsd.ecore.converter/pom.xml b/plugins/org.eclipse.xsd.ecore.converter/pom.xml
+new file mode 100644
+index 0000000..b4f3f4d
+--- /dev/null
++++ b/plugins/org.eclipse.xsd.ecore.converter/pom.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd</groupId>
++  <artifactId>org.eclipse.xsd.ecore.converter</artifactId>
++  <version>2.6.0-SNAPSHOT</version>
++  <packaging>eclipse-plugin</packaging>
++
++  <name>XSD Ecore Converter</name>
++</project>
+diff --git a/plugins/org.eclipse.xsd.ecore.exporter/pom.xml b/plugins/org.eclipse.xsd.ecore.exporter/pom.xml
+new file mode 100644
+index 0000000..8c7bae4
+--- /dev/null
++++ b/plugins/org.eclipse.xsd.ecore.exporter/pom.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd</groupId>
++  <artifactId>org.eclipse.xsd.ecore.exporter</artifactId>
++  <version>2.5.0-SNAPSHOT</version>
++  <packaging>eclipse-plugin</packaging>
++
++  <name>XSD Ecore Exporter</name>
++</project>
+diff --git a/plugins/org.eclipse.xsd.ecore.importer/pom.xml b/plugins/org.eclipse.xsd.ecore.importer/pom.xml
+new file mode 100644
+index 0000000..78a1083
+--- /dev/null
++++ b/plugins/org.eclipse.xsd.ecore.importer/pom.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd</groupId>
++  <artifactId>org.eclipse.xsd.ecore.importer</artifactId>
++  <version>2.7.0-SNAPSHOT</version>
++  <packaging>eclipse-plugin</packaging>
++
++  <name>XSD Ecore Importer</name>
++</project>
+diff --git a/plugins/org.eclipse.xsd.edit/pom.xml b/plugins/org.eclipse.xsd.edit/pom.xml
+new file mode 100644
+index 0000000..0aad7d5
+--- /dev/null
++++ b/plugins/org.eclipse.xsd.edit/pom.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd</groupId>
++  <artifactId>org.eclipse.xsd.edit</artifactId>
++  <version>2.8.0-SNAPSHOT</version>
++  <packaging>eclipse-plugin</packaging>
++
++  <name>XSD Edit</name>
++</project>
+diff --git a/plugins/org.eclipse.xsd.editor/pom.xml b/plugins/org.eclipse.xsd.editor/pom.xml
+new file mode 100644
+index 0000000..f6a222a
+--- /dev/null
++++ b/plugins/org.eclipse.xsd.editor/pom.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd</groupId>
++  <artifactId>org.eclipse.xsd.editor</artifactId>
++  <version>2.8.0-SNAPSHOT</version>
++  <packaging>eclipse-plugin</packaging>
++
++  <name>XSD Sample Editor</name>
++</project>
+diff --git a/plugins/org.eclipse.xsd.example.installer/pom.xml b/plugins/org.eclipse.xsd.example.installer/pom.xml
+new file mode 100644
+index 0000000..68a728c
+--- /dev/null
++++ b/plugins/org.eclipse.xsd.example.installer/pom.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd</groupId>
++  <artifactId>org.eclipse.xsd.example.installer</artifactId>
++  <version>1.2.0-SNAPSHOT</version>
++  <packaging>eclipse-plugin</packaging>
++
++  <name>XSD Example Installer</name>
++</project>
+diff --git a/plugins/org.eclipse.xsd.mapping.editor/pom.xml b/plugins/org.eclipse.xsd.mapping.editor/pom.xml
+new file mode 100644
+index 0000000..501bdac
+--- /dev/null
++++ b/plugins/org.eclipse.xsd.mapping.editor/pom.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd</groupId>
++  <artifactId>org.eclipse.xsd.mapping.editor</artifactId>
++  <version>2.7.0-SNAPSHOT</version>
++  <packaging>eclipse-plugin</packaging>
++
++  <name>XSD Mapping Editor</name>
++</project>
+diff --git a/plugins/org.eclipse.xsd.mapping/pom.xml b/plugins/org.eclipse.xsd.mapping/pom.xml
+new file mode 100644
+index 0000000..db45dc7
+--- /dev/null
++++ b/plugins/org.eclipse.xsd.mapping/pom.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd</groupId>
++  <artifactId>org.eclipse.xsd.mapping</artifactId>
++  <version>2.6.0-SNAPSHOT</version>
++  <packaging>eclipse-plugin</packaging>
++
++  <name>XSD Mapping</name>
++</project>
+diff --git a/plugins/org.eclipse.xsd/pom.xml b/plugins/org.eclipse.xsd/pom.xml
+new file mode 100644
+index 0000000..48e8977
+--- /dev/null
++++ b/plugins/org.eclipse.xsd/pom.xml
+@@ -0,0 +1,30 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd</groupId>
++  <artifactId>org.eclipse.xsd</artifactId>
++  <packaging>eclipse-plugin</packaging>
++
++  <name>XSD Model</name>
++</project>
+diff --git a/pom.xml b/pom.xml
+new file mode 100644
+index 0000000..7f494f6
+--- /dev/null
++++ b/pom.xml
+@@ -0,0 +1,182 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <prerequisites>
++    <maven>3.0.5</maven>
++  </prerequisites>
++
++  <groupId>org.eclipse.xsd</groupId>
++  <artifactId>org.eclipse.xsd-parent</artifactId>
++  <version>2.12.0-SNAPSHOT</version>
++  <packaging>pom</packaging>
++
++  <name>XSD Parent</name>
++
++  <licenses>
++    <license>
++      <name>Eclipse Public License v1.0</name>
++      <comments>
++       All rights reserved.
++
++       This program and the accompanying materials are made
++       available under the terms of the Eclipse Public License v1.0
++       which accompanies this distribution, and is available at
++       http://www.eclipse.org/legal/epl-v10.htm
++      </comments>
++    </license>
++  </licenses>
++
++  <properties>
++    <tycho-version>0.23.0</tycho-version>
++    <tycho-extras-version>0.23.0</tycho-extras-version>
++    <eclipse-platform-name>luna</eclipse-platform-name>
++    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
++  </properties>
++
++  <repositories>
++    <repository>
++      <id>eclipse-platform</id>
++      <url>http://download.eclipse.org/releases/${eclipse-platform-name}</url>
++      <layout>p2</layout>
++    </repository>
++    <repository>
++      <id>license-feature</id>
++      <url>http://download.eclipse.org/cbi/updates/license/</url>
++      <layout>p2</layout>
++    </repository>
++  </repositories>
++
++  <modules>
++    <module>plugins/org.eclipse.emf.mapping.xsd2ecore</module>
++    <module>plugins/org.eclipse.emf.mapping.xsd2ecore.editor</module>
++    <module>plugins/org.eclipse.xsd</module>
++    <module>plugins/org.eclipse.xsd.ecore.converter</module>
++    <module>plugins/org.eclipse.xsd.ecore.exporter</module>
++    <module>plugins/org.eclipse.xsd.ecore.importer</module>
++    <module>plugins/org.eclipse.xsd.edit</module>
++    <module>plugins/org.eclipse.xsd.editor</module>
++    <module>plugins/org.eclipse.xsd.example.installer</module>
++    <module>plugins/org.eclipse.xsd.mapping</module>
++    <module>plugins/org.eclipse.xsd.mapping.editor</module>
++    <module>doc/org.eclipse.xsd.cheatsheets</module>
++    <module>doc/org.eclipse.xsd.doc</module>
++    <module>doc/org.eclipse.xsd.doc-feature</module>
++    <module>examples/org.eclipse.xsd.example</module>
++    <module>features/org.eclipse.xsd.ecore.converter-feature</module>
++    <module>features/org.eclipse.xsd.edit-feature</module>
++    <module>features/org.eclipse.xsd.editor-feature</module>
++    <module>features/org.eclipse.xsd.example-feature</module>
++    <module>features/org.eclipse.xsd-feature</module>
++    <module>features/org.eclipse.xsd.mapping.editor-feature</module>
++    <module>features/org.eclipse.xsd.mapping-feature</module>
++    <module>features/org.eclipse.xsd.sdk-feature</module>
++    <module>releng/org.eclipse.xsd.repository</module>
++  </modules>
++
++  <build>
++    <plugins>
++      <plugin>
++        <groupId>org.eclipse.tycho</groupId>
++        <artifactId>tycho-maven-plugin</artifactId>
++        <version>${tycho-version}</version>
++        <extensions>true</extensions>
++      </plugin>
++      <plugin>
++        <groupId>org.eclipse.tycho</groupId>
++        <artifactId>tycho-packaging-plugin</artifactId>
++        <version>${tycho-version}</version>
++        <configuration>
++          <format>'v'yyyyMMdd-HHmm</format>
++        </configuration>
++      </plugin>
++      <plugin>
++        <groupId>org.eclipse.tycho</groupId>
++        <artifactId>tycho-source-plugin</artifactId>
++        <version>${tycho-version}</version>
++        <executions>
++          <execution>
++            <id>plugin-source</id>
++            <goals>
++              <goal>plugin-source</goal>
++            </goals>
++          </execution>
++        </executions>
++      </plugin>
++      <plugin>
++        <groupId>org.eclipse.tycho.extras</groupId>
++        <artifactId>tycho-source-feature-plugin</artifactId>
++        <version>${tycho-extras-version}</version>
++        <configuration>
++          <includeBinaryFeature>false</includeBinaryFeature>
++          <excludes>
++            <plugin id="org.eclipse.xsd.doc"/>
++            <plugin id="org.eclipse.xsd.ecore.converter"/>
++            <plugin id="org.eclipse.xsd.example.installer"/>
++            <plugin id="org.eclipse.xsd.mapping"/>
++            <plugin id="org.eclipse.xsd.mapping.editor"/>
++          </excludes>
++        </configuration>
++        <executions>
++          <execution>
++            <id>source-feature</id>
++            <goals>
++              <goal>source-feature</goal>
++            </goals>
++          </execution>
++        </executions>
++      </plugin>
++      <plugin>
++        <groupId>org.eclipse.tycho.extras</groupId>
++        <artifactId>tycho-pack200b-plugin</artifactId>
++        <version>${tycho-extras-version}</version>
++        <executions>
++          <execution>
++            <id>pack200-pack</id>
++            <goals>
++              <goal>pack</goal>
++            </goals>
++          </execution>
++        </executions>
++      </plugin>
++      <plugin>
++        <groupId>org.eclipse.tycho</groupId>
++        <artifactId>tycho-p2-plugin</artifactId>
++        <version>${tycho-version}</version>
++        <configuration>
++          <defaultP2Metadata>false</defaultP2Metadata>
++        </configuration>
++        <executions>
++          <execution>
++            <id>attach-p2-metadata</id>
++            <phase>package</phase>
++            <goals>
++              <goal>p2-metadata</goal>
++            </goals>
++          </execution>
++        </executions>
++      </plugin>
++      <plugin>
++        <groupId>org.eclipse.tycho</groupId>
++        <artifactId>target-platform-configuration</artifactId>
++        <version>${tycho-version}</version>
++        <configuration>
++          <includePackedArtifacts>true</includePackedArtifacts>
++        </configuration>
++      </plugin>
++    </plugins>
++  </build>
++</project>
+diff --git a/releng/org.eclipse.xsd.repository/.project b/releng/org.eclipse.xsd.repository/.project
+new file mode 100644
+index 0000000..593d1c1
+--- /dev/null
++++ b/releng/org.eclipse.xsd.repository/.project
+@@ -0,0 +1,11 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<projectDescription>
++	<name>org.eclipse.xsd.repository</name>
++	<comment></comment>
++	<projects>
++	</projects>
++	<buildSpec>
++	</buildSpec>
++	<natures>
++	</natures>
++</projectDescription>
+diff --git a/releng/org.eclipse.xsd.repository/category.xml b/releng/org.eclipse.xsd.repository/category.xml
+new file mode 100644
+index 0000000..a695b30
+--- /dev/null
++++ b/releng/org.eclipse.xsd.repository/category.xml
+@@ -0,0 +1,43 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<site>
++   <feature id="org.eclipse.xsd" version="0.0.0">
++      <category name="xsd"/>
++   </feature>
++   <feature id="org.eclipse.xsd.doc" version="0.0.0">
++      <category name="xsd"/>
++   </feature>
++   <feature id="org.eclipse.xsd.ecore.converter" version="0.0.0">
++      <category name="xsd"/>
++   </feature>
++   <feature id="org.eclipse.xsd.edit" version="0.0.0">
++      <category name="xsd"/>
++   </feature>
++   <feature id="org.eclipse.xsd.editor" version="0.0.0">
++      <category name="xsd"/>
++   </feature>
++   <feature id="org.eclipse.xsd.mapping" version="0.0.0">
++      <category name="xsd"/>
++   </feature>
++   <feature id="org.eclipse.xsd.mapping.editor" version="0.0.0">
++      <category name="xsd"/>
++   </feature>
++   <feature id="org.eclipse.xsd.sdk" version="0.0.0">
++      <category name="xsd-sdk"/>
++   </feature>
++   <feature id="org.eclipse.xsd.sdk.source" version="0.0.0">
++      <category name="xsd-sdk"/>
++   </feature>
++   <feature id="org.eclipse.xsd.example" version="0.0.0">
++      <category name="xsd-sdk"/>
++   </feature>
++   <category-def name="xsd" label="XML Schema Definition">
++      <description>
++         XML Schema Definition runtime
++      </description>
++   </category-def>
++   <category-def name="xsd-sdk" label="XML Schema Definition SDK">
++      <description>
++         XML Schema Definition runtime, developer resources and examples
++      </description>
++   </category-def>
++</site>
+diff --git a/releng/org.eclipse.xsd.repository/pom.xml b/releng/org.eclipse.xsd.repository/pom.xml
+new file mode 100644
+index 0000000..86893f6
+--- /dev/null
++++ b/releng/org.eclipse.xsd.repository/pom.xml
+@@ -0,0 +1,40 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++        Copyright (C) 2014, Red Hat, Inc.
++
++   All rights reserved. This program and the accompanying materials
++   are made available under the terms of the Eclipse Public License v1.0
++   which accompanies this distribution, and is available at
++   http://www.eclipse.org/legal/epl-v10.html
++
++   Contributors:
++       Mat Booth <mat.booth@redhat.com> - initial implementation
++-->
++<project
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
++    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
++  <modelVersion>4.0.0</modelVersion>
++
++  <parent>
++    <groupId>org.eclipse.xsd</groupId>
++    <artifactId>org.eclipse.xsd-parent</artifactId>
++    <version>2.12.0-SNAPSHOT</version>
++    <relativePath>../../pom.xml</relativePath>
++  </parent>
++
++  <groupId>org.eclipse.xsd</groupId>
++  <artifactId>org.eclipse.xsd.repository</artifactId>
++  <packaging>eclipse-repository</packaging>
++
++  <name>XSD P2 Repository</name>
++
++  <build>
++    <plugins>
++      <plugin>
++        <groupId>org.eclipse.tycho</groupId>
++        <artifactId>tycho-p2-repository-plugin</artifactId>
++        <version>${tycho-version}</version>
++      </plugin>
++    </plugins>
++  </build>
++</project>
+-- 
+1.9.3
+
